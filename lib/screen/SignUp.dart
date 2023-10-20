@@ -1,9 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:quiz_app/helper/constants.dart';
+import 'package:quiz_app/services/databaseService.dart';
 import 'Home.dart';
 import 'login.dart';
-// import '../Database/fireDb.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quiz_app/services/auth.dart';
+// import 'package:quiz_app/services/firedb.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -18,41 +22,99 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _userNameController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  // final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
 
-  Future<void> _register() async {
-    try {
-      // UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
-      // fireDb myDB = fireDb();
-      // myDB.createNewUser(_userNameController.toString(), _emailController.toString(), 0);
-      // String userId = userCredential.user!.uid;
+  DatabaseService databaseService = new DatabaseService();
+  AuthService authService = new AuthService();
 
-      // Create a reference to the user node in the database
-      // DatabaseReference userRef = databaseReference.child('users').child(userId);
+  String email = "";
+  String password = "";
+  String name = "";
+  bool _loading = false;
 
-      // Set the user data
-      // await userRef.set({
-      //   'username': _userNameController.text,
-      //   'useremail': _emailController.text,
-      //   'password': _passwordController.text,
-      // });
+  // Future<void> _register() async {
+  //   try {
+  //     UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
+  //     String userId = userCredential.user!.uid;
+  //
+  //     print("******************************************");
+  //     print(userId);
+  //     print("*******************************************");
+  //
+  //     // Create a reference to the user node in the database
+  //     // DatabaseReference userRef = databaseReference.child('users');
+  //
+  //
+  //     // print("******************************************");
+  //     // print(userRef);
+  //     // print("*******************************************");
+  //
+  //
+  //     // Set the user data
+  //     // await userRef.set({
+  //     //   'username': _userNameController.text,
+  //     //   'useremail': _emailController.text,
+  //     //   // 'password': _passwordController.text,
+  //     //   'score': 0
+  //     // });
+  //
+  //     // print("User registered: ${userCredential.user!.email}");
+  //
+  //     // await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text);
+  //
+  //     // String userId = FirebaseAuth.instance.currentUser!.uid;
+  //
+  //     // DatabaseReference userRef = databaseReference.child('users').child(userId);
+  //     //
+  //     // await userRef.set({
+  //     //   'username': _userNameController.text,
+  //     //   'useremail': _emailController.text,
+  //     //   'score': 0, // Initialize score to 0
+  //     // });
+  //
+  //
+  //
+  //     print("User registered: ${FirebaseAuth.instance.currentUser!.email}");
+  //     print("Navigating to Home page");
+  //     Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+  //
+  //   } on FirebaseAuthException catch (e) {
+  //     if (e.code == 'weak-password') {
+  //       print('The password provided is too weak.');
+  //     } else if (e.code == 'email-already-in-use') {
+  //       print('The account already exists for that email.');
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
-      // print("User registered: ${userCredential.user!.email}");
-      print("Navigating to Home page");
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+  getInfoAndSignUp() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _loading = true;
+      });
+      email = _emailController.text;
+      password = _passwordController.text;
+      name = _userNameController.text;
 
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
+
+      await authService
+          .signUpWithEmailAndPassword(email, password)
+          .then((value) {
+        Map<String, String> userInfo = {
+          "userName": name,
+          "email": email,
+        };
+
+        // databaseService.addData(userInfo);
+
+        Constants.saveUserLoggedInSharedPreference(true);
+
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Home()));
+      });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -184,11 +246,13 @@ class _SignUpState extends State<SignUp> {
 
                         ElevatedButton(onPressed: (){
                           if (_formKey.currentState!.validate()) {
+                            getInfoAndSignUp();
                             // _register();
-                            FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text).then((value) {
-                              print("User created");
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
-                            });
+                            // FirebaseAuth.instance.createUserWithEmailAndPassword(email: _emailController.text, password: _passwordController.text).then((value) {
+                            //   print("User created");
+                            //   // createNewUser(_emailController.text, _userNameController.text);
+                            //   Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
+                            // });
                           }
                         }, child: Text('Sign Up')),
 

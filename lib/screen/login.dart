@@ -124,7 +124,6 @@ class _LoginState extends State<Login> {
 
                           setState(() {
                             if (_formKey.currentState!.validate()) {
-                              // _register();
                               FirebaseAuth.instance.signInWithEmailAndPassword(email: _emailController.text, password: _passwordController.text).then((value) {
                                 print("Logged In");
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>Home()));
