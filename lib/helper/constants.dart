@@ -17,4 +17,6 @@ class Constants {
     bool isUserLoggedIn = sharedPreferences.getBool(Constants.sharedPreferenceUserLoggedInKey) ?? false;
     return isUserLoggedIn;
   }
+
+
 }

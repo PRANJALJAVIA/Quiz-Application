@@ -31,8 +31,9 @@ class DatabaseService{
     return await FirebaseFirestore.instance
         .collection("Quiz")
         .doc(quizId)
-        .collection("QNA")
-        .get();
+        .collection("QnA").get();
   }
+
+
 
 }

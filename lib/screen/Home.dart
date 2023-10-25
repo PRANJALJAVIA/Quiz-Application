@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:quiz_app/screen/login.dart';
 import 'package:quiz_app/screen/play_quiz.dart';
 import 'package:quiz_app/services/databaseService.dart';
+import 'package:quiz_app/services/auth.dart';
 import '../widget/widget.dart';
 import 'SignUp.dart';
 import 'create_quize.dart';
@@ -60,7 +62,22 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Center(child: AppLogo()),
+        title: Container(
+            margin: EdgeInsets.only(left: 145),
+            child: AppLogo()),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              final FirebaseAuth _auth = FirebaseAuth.instance;
+              await _auth.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Login()),
+              );
+            },
+          ),
+        ],
       ),
 
       // body: Column(
